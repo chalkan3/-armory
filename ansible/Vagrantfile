@@ -1,0 +1,111 @@
+
+
+HA_IP = "193.168.50.5"
+
+Vagrant.configure("2") do |config|
+
+    config.vm.define "load-balancer" do |ha|
+        ha.vm.provider "docker" do |d|
+            d.image = "rofrano/vagrant-provider:ubuntu"
+            d.remains_running = true
+            d.has_ssh = true
+            d.privileged = true
+            d.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:rw"]
+            d.create_args = [   
+                "--cgroupns=host",
+                "--memory=1g", 
+                "--memory-swap=1g", 
+                "--memory-swappiness=0", 
+                "--cpus=1",
+            ]
+
+        end
+        ha.vm.network "private_network", ip: HA_IP
+        ha.vm.hostname = "load-balancer"
+        ha.vm.provision "ansible" do |ansible|
+            ansible.playbook = "loadbalancer/ha-playbook.yml"
+            
+            ansible.extra_vars = {
+                frontend_ip: HA_IP,
+                master_node_ip_0: "193.168.50.10",
+                master_node_ip_1: "193.168.50.11",
+                master_node_ip_2: "193.168.50.12",
+            }
+        end
+    end
+
+    
+
+    config.vm.define "postgres" do |ha|
+        ha.vm.provider "docker" do |d|
+            d.image = "rofrano/vagrant-provider:ubuntu"
+            d.remains_running = true
+            d.has_ssh = true
+            d.privileged = true
+            d.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:rw"]
+            d.create_args = [   
+                "--cgroupns=host",
+                "--memory=1g", 
+                "--memory-swap=1g", 
+                "--memory-swappiness=0", 
+                "--cpus=1",
+            ]
+
+        end
+        ha.vm.network "private_network", ip: "193.168.50.12"
+        ha.vm.hostname = "postgres"
+        ha.vm.provision "ansible" do |ansible|
+            ansible.playbook = "postgres-setup/setup.yml"
+            
+            ansible.extra_vars = {}
+        end
+    end
+  
+
+    config.vm.define "redis" do |ha|
+        ha.vm.provider "docker" do |d|
+            d.image = "rofrano/vagrant-provider:ubuntu"
+            d.remains_running = true
+            d.has_ssh = true
+            d.privileged = true
+            d.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:rw"]
+            d.create_args = [   
+                "--cgroupns=host",
+                "--memory=1g", 
+                "--memory-swap=1g", 
+                "--memory-swappiness=0", 
+                "--cpus=1",
+            ]
+
+        end
+        ha.vm.network "private_network", ip: "200.168.50.12"
+        ha.vm.hostname = "redis"
+        ha.vm.provision "ansible" do |ansible|
+            ansible.playbook = "redis-setup/setup.yml"
+            
+            ansible.extra_vars = {}
+        end
+    end
+    config.vm.define "kong" do |ha|
+        ha.vm.provider "docker" do |d|
+            d.image = "rofrano/vagrant-provider:ubuntu"
+            d.remains_running = true
+            d.has_ssh = true
+            d.privileged = true
+            d.volumes = ["/sys/fs/cgroup:/sys/fs/cgroup:rw"]
+            d.create_args = [   
+                "--cgroupns=host",
+                "--memory-swappiness=0", 
+                "--cpus=1",
+            ]
+
+        end
+        ha.vm.network "private_network", ip: "10.168.50.12"
+        ha.vm.hostname = "kong"
+        ha.vm.provision "ansible" do |ansible|
+            ansible.playbook = "kong-setup/main.yml"
+            ansible.extra_vars = {}
+        end
+    end
+  
+end

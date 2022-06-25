@@ -1,0 +1,16 @@
+- name: Install base dependencies
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - locales
+      - build-essential
+      - acl
+      - ntp
+      - htop
+      - git
+      - python-pip
+      - libpq-dev
+    state: present
+  tags:
+    - packages

@@ -1,0 +1,13 @@
+---
+apiVersion: kubernetes/v1beta1
+kind: Node
+metadata:
+  name: node-worker-1
+spec:
+  cluster: ladyguica
+  node:
+    network:
+      privateIp: 193.168.50.50
+    name: node-worker-2
+    types: worker
+    primary: false

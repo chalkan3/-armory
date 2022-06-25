@@ -1,0 +1,12 @@
+---
+apiVersion: redis/v1beta1
+kind: Redis
+metadata:
+  name: redis-1
+spec:
+  configuration:
+    network:
+      privateIp: 201.168.50.60
+    name: redis-1
+    cluster: redis-cluster
+

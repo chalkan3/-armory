@@ -1,0 +1,12 @@
+---
+apiVersion: postgres/v1beta1
+kind: Postgres
+metadata:
+  name: postgres-1
+spec:
+  configuration:
+    network:
+      privateIp: 194.168.50.60
+    name: node-worker-2
+    cluster: pg-1cluster
+

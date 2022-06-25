@@ -1,0 +1,1 @@
+  kubeadm join 193.168.50.5:6443 --token rfxnby.c3zmup20ygli4ftl --discovery-token-ca-cert-hash sha256:51a01eac5de45ee46e724ef7caa0adbf70d449a89a189768ad6213c8e69ab2ec --control-plane --certificate-key 3a291d0dc099bf3cc56d29756fe4fc017f6807fac557d71dce786a07f363973e --ignore-preflight-errors Swap

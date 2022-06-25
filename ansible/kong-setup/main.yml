@@ -1,0 +1,103 @@
+- hosts: all
+  become: true
+  tasks:
+    - name: Install packages that allow apt to be used over HTTPS
+      apt:
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg-agent
+        - software-properties-common
+
+
+    - name: Add an apt signing key for Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add apt repository for stable version
+      apt_repository:
+        repo: deb [arch=arm64] https://download.docker.com/linux/ubuntu xenial stable
+        state: present
+        update_cache: true
+ 
+    - name: Install docker and its dependecies
+      apt: 
+        name: "{{ packages }}"
+        state: present
+        update_cache: yes
+      vars:
+        packages:
+        - docker-ce 
+        - docker-ce-cli 
+        - containerd.io
+      notify:
+        - docker status
+
+    - name: Add vagrant user to docker group
+      user:
+        name: vagrant
+        group: docker
+
+    - name: Enable Docker
+      command: systemctl enable docker   
+
+    - name: Reload Docker
+      command: systemctl daemon-reload 
+
+    - name: Restart Docker
+      command: systemctl restart docker 
+
+    - name: install kong network
+      shell: |
+        docker network create kong-network
+    - name: install postgres for kong
+      shell: |
+        docker run -d --name kong-database --network=kong-network \
+        -e "POSTGRES_USER=kong" -e "POSTGRES_DB=kong" -e "POSTGRES_PASSWORD=kong" \
+        -p 5432:5432 postgres:9.6
+    - name: prepare kong for migrations
+      shell: |
+        docker run --rm --network=kong-network \
+        -e "KONG_DATABASE=postgres" -e "KONG_PG_HOST=kong-database" \
+        -e "KONG_PG_PASSWORD=kong" kong:latest kong migrations bootstrap
+ 
+    - name: install && run kong
+      shell: |
+        docker run -d --name kong --network=kong-network \
+        -e "KONG_DATABASE=postgres" -e "KONG_PG_HOST=kong-database" \
+        -e "KONG_PG_PASSWORD=kong" -e "KONG_PROXY_ACCESS_LOG=/dev/stdout" \
+        -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout" -e "KONG_PROXY_ERROR_LOG=/dev/stderr" \
+        -e "KONG_ADMIN_ERROR_LOG=/dev/stderr" -e "KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl" \
+        -p 8000:8000 -p 8443:8443 -p 8001:8001 -p 8444:8444 kong:latest
+
+
+    - name: prepare konga migrations
+      shell: |
+          docker run --rm --network=kong-network pantsel/konga -c prepare -a postgres -u postgresql://kong:kong@kong-database:5432/konga_db
+
+ 
+    - name: install konga(GUI)
+      shell: |
+          docker run -d -p 1337:1337 \
+              --network=kong-network \
+              -e "DB_ADAPTER=postgres" \
+              -e "DB_HOST=kong-database" \
+              -e "DB_USER=kong" \
+              -e "DB_PASSWORD=kong" \
+              -e "DB_DATABASE=konga_db" \
+              -e "KONGA_HOOK_TIMEOUT=120000" \
+              -e "NODE_ENV=production" \
+              --name konga \
+              pantsel/konga
+ 
+
+  handlers:
+    - name: docker status
+      service: name=docker state=started
+

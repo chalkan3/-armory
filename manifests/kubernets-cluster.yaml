@@ -1,0 +1,29 @@
+---
+manifest:
+  apiVersion: kubernetes/v1beta1
+  kind: Cluster
+  metadata:
+    name: cluster
+  spec:
+    cluster:
+      cidr:
+        range: 192.168.0.0/16
+      loadbalacer:
+        ip: 192.168.0.100
+
+      nodes:
+        masters:
+        - name: master-0
+          private-ip: "192.168.0.10"
+        - name: master-1
+          private-ip: "192.168.0.11"
+        - name: master-2
+          private-ip: "192.168.0.12"
+       
+        workers:
+        - name: workers-0
+          private-ip: "192.168.0.20"
+        - name: workers-1
+          private-ip: "192.168.0.21"
+        - name: workers-2
+          private-ip: "192.168.0.22"

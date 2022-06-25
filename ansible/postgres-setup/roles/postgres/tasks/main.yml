@@ -1,0 +1,23 @@
+- name: Install postgresql
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - postgresql
+      - postgresql-contrib
+      - postgresql-server-dev-14
+      - python-psycopg2
+    state: present
+  tags:
+    - postgres
+- name: Enable passwordless sudo
+  lineinfile: dest=/etc/sudoers regexp=^vagrant line="vagrant ALL=(postgres) NOPASSWD:/bin/sh"
+- name: Create a PostgreSQL database user
+  postgresql_user: name=project password=project role_attr_flags=CREATEDB state=present
+  become_user: postgres
+  become_method: sudo
+- name: Create acme database
+  become_user: postgres
+  postgresql_db:
+    name: acme
+    encoding: UTF-8

@@ -1,0 +1,73 @@
+---
+- name: Install and set up Redis 6 in Debian 11
+  hosts: all
+  become: yes
+  gather_facts: False
+  vars:
+    redis_password: j2GfJuLFR8
+  tasks:
+    - name: Update apt repo and cache on all Debian/Ubuntu boxes
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        cache_valid_time: 3600
+
+    - name: Upgrade all packages on servers
+      apt:
+        upgrade: dist
+        force_apt_get: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - gnupg
+          - vim
+        state: latest
+
+    - name: Set up Redis 6 repo
+      shell: |
+        curl https://packages.redis.io/gpg | sudo apt-key add -
+        echo "deb https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+
+    - name: Install redis
+      apt:
+        name: redis-server
+        update_cache: yes
+    - name: Enable Redis
+      systemd:
+        name: redis-server
+        enabled: yes
+
+    - name: Set redis server pid file
+      lineinfile:
+        path: /etc/redis/redis.conf
+        regexp: "^pidfile"
+        line: "pidfile /var/run/redis/redis-server.pid"
+    - name: Restart Redis
+      systemd:
+        name: redis-server
+        state: restarted
+
+    - name: Secure redis with a password
+      lineinfile:
+        dest: /etc/redis/redis.conf
+        regexp: '^(# )?requirepass \w*$'
+        line: 'requirepass {{ redis_password }}'
+        state: present
+    - name: Restart Redis
+      systemd:
+        name: redis-server
+        state: restarted
+
+    - name: Bind redis to 0.0.0.0
+      lineinfile:
+        dest: /etc/redis/redis.conf
+        regexp: '^bind \b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b$'
+        line: 'bind 0.0.0.0'
+        state: present
+    - name: Restart Redis
+      systemd:
+        name: redis-server
+        state: restarted
+
+  
