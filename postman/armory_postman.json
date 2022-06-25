@@ -1,0 +1,189 @@
+{
+	"info": {
+		"_postman_id": "de971c34-8f5b-48dd-b036-ebd7abcb9ba0",
+		"name": "Armory",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3191312"
+	},
+	"item": [
+		{
+			"name": "v1",
+			"item": [
+				{
+					"name": "Kubernetes",
+					"item": [
+						{
+							"name": "nodes",
+							"item": [
+								{
+									"name": "Create",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"manifest\": {\n        \"api_version\": \"kubernetes/node/v1beta1\",\n        \"kind\": \"Node\",\n        \"metadata\": {\n            \"name\": \"redis-2\"\n        },\n        \"spec\": {\n            \"node\": {\n                \"name\": \"redis-2\",\n                \"types\": \"master\",\n                \"primary\": false,\n                \"network\": {\n                    \"private_ip\": \"201.168.50.60\",\n                    \"load_balancer_ip\": \"\"\n                }\n            }\n        }\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{gateway_v1}}{{kubernetes_node_path}}",
+											"host": [
+												"{{gateway_v1}}{{kubernetes_node_path}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Database",
+					"item": [
+						{
+							"name": "Postgres",
+							"item": [
+								{
+									"name": "Create",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\"manifest\": {\n  \"apiVersion\": \"database/postgres/v1beta1\",\n  \"kind\": \"Postgres\",\n  \"metadata\": {\n    \"name\": \"postgres-1\"\n  },\n  \"spec\": {\n    \"configuration\": {\n      \"network\": {\n        \"private_ip\": \"201.168.50.60\"\n      },\n      \"name\": \"my-postgres\",\n      \"cluster\": \"my-cluster\"\n    }\n  }\n}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{gateway_v1}}{{database_postgres_path}}",
+											"host": [
+												"{{gateway_v1}}{{database_postgres_path}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Redis",
+							"item": [
+								{
+									"name": "Create",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\"manifest\": {\n  \"apiVersion\": \"database/redis/v1beta1\",\n  \"kind\": \"Redis\",\n  \"metadata\": {\n    \"name\": \"redis-1\"\n  },\n  \"spec\": {\n    \"configuration\": {\n      \"network\": {\n        \"private_ip\": \"201.168.50.60\"\n      },\n      \"name\": \"my-redis\",\n      \"cluster\": \"my-redis-cluster\"\n    }\n  }\n}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{gateway_v1}}{{database_redis_path}}",
+											"host": [
+												"{{gateway_v1}}{{database_redis_path}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Api Gateway",
+					"item": [
+						{
+							"name": "Kong",
+							"item": [
+								{
+									"name": "Create",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n\"manifest\": {\n  \"apiVersion\": \"database/redis/v1beta1\",\n  \"kind\": \"Redis\",\n  \"metadata\": {\n    \"name\": \"redis-1\"\n  },\n  \"spec\": {\n    \"configuration\": {\n      \"network\": {\n        \"private_ip\": \"201.168.50.60\"\n      },\n      \"name\": \"my-redis\",\n      \"cluster\": \"my-redis-cluster\"\n    }\n  }\n}\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{gateway_v1}}{{database_redis_path}}",
+											"host": [
+												"{{gateway_v1}}{{database_redis_path}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "gateway_v1",
+			"value": "http://localhost:8000/v1/",
+			"type": "string"
+		},
+		{
+			"key": "kubernetes_node_path",
+			"value": "kubernetes/nodes",
+			"type": "string"
+		},
+		{
+			"key": "database_postgres_path",
+			"value": "database/postgres",
+			"type": "string"
+		},
+		{
+			"key": "database_redis_path",
+			"value": "database/redis",
+			"type": "string"
+		},
+		{
+			"key": "apigateway_kong_path",
+			"value": "apigateway/kong",
+			"type": "string"
+		}
+	]
+}

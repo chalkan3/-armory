@@ -1,21 +1,30 @@
-mariaguicactl kubernetes node create --name master-0 --private-ip 193.168.50.10  --type master  --lb-ip 193.168.50.5 --primary
-mariaguicactl kubernetes node create --name master-2 --private-ip 193.168.50.12  --type master  --lb-ip 193.168.50.5
-mariaguicactl kubernetes node create --name worker-1 --private-ip 193.168.50.20  --type worker 
-mariaguicactl kubernetes node create --name worker-2 --private-ip 193.168.50.21  --type worker 
-mariaguicactl kubernetes node create -f node-worker.yml
-mariaguicactl kubernetes node create -f node-master.yml
+armory provider vagrant kubernetes node create --name master-0 --private-ip 193.168.50.10  --type master  --lb-ip 193.168.50.5 --primary
+armory provider vagrant kubernetes node create --name master-2 --private-ip 193.168.50.12  --type master  --lb-ip 193.168.50.5
+armory provider vagrant kubernetes node create --name worker-1 --private-ip 193.168.50.20  --type worker 
+armory provider vagrant kubernetes node create --name worker-2 --private-ip 193.168.50.21  --type worker 
+armory provider vagrant kubernetes node create -f node-worker.yml
+armory provider vagrant kubernetes node create -f node-master.yml
 
-mariaguicactl load-balancer haProxy create -f ha.yml
-mariaguicactl active-directory windowsserver16 create -f active-directory.yml
-mariaguicactl database postgres create -f postgres.yml
-mariaguicactl stream kafka create -f postgres.yml
-mariaguicactl api-gateway kong create -f node-master.yml
-mariaguicactl machine ubuntu create -f node-master.yml
+armory pv vg k8s node create -n master-0 --private-ip 193.168.50.10  -t master  --lb-ip 193.168.50.5 --primary
+armory pv vg k8s node create -n master-2 --private-ip 193.168.50.12  -t master  --lb-ip 193.168.50.5
+armory pv vg k8s node create -n worker-1 --private-ip 193.168.50.20  -t worker 
+armory pv vg k8s node create -n worker-2 --private-ip 193.168.50.21  -t worker 
+armory pv vg k8s node create -f node-worker.yml
+armory pv vg k8s node create -f node-master.yml
 
-mariaguicactl api-gateway kong create -f node-master.yml
-mariaguicactl api-gateway kong konga
-mariaguicactl api-gateway kong service 
-mariaguicactl api-gateway kong plugin 
+
+
+armory provider vagrant load-balancer haProxy create -f ha.yml
+armory provider vagrant active-directory windowsserver16 create -f active-directory.yml
+armory provider vagrant database postgres create -f postgres.yml
+armory provider vagrant stream kafka create -f postgres.yml
+armory provider vagrant api-gateway kong create -f node-master.yml
+armory provider vagrant machine ubuntu create -f node-master.yml
+
+armory provider vagrant api-gateway kong create -f node-master.yml
+armory provider vagrant api-gateway kong konga
+armory provider vagrant api-gateway kong service 
+armory provider vagrant api-gateway kong plugin 
 
 
 ssh vagrant@localhost -p 2229 -N -L  8001:127.0.1:8001
